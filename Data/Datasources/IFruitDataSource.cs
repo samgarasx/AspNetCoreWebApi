@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace AspNetCoreWebApi.Data.Datasources
 {
-    public interface IFruitDatasource
+    public interface IFruitDataSource
     {
          IEnumerable<Fruit> GetAll();
          Fruit GetById(int id);

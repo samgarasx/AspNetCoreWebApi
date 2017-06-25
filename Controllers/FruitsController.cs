@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using AspNetCoreWebApi.Data.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using LanguageExt;
-using static LanguageExt.Prelude;
 using AspNetCoreWebApi.Models;
 using Newtonsoft.Json.Linq;
 
@@ -46,8 +44,8 @@ namespace AspNetCoreWebApi.Controllers
         {
             var fruits = this.repository.GetAll();
 
-            var fruit = fruits.Single(m => m.Id == id);
-            if (Some(fruit).IsNull())
+            var fruit = fruits.SingleOrDefault(m => m.Id == id);
+            if (fruit is null)
                 return NotFound();
 
             var jsonResponse = new JObject(
@@ -65,7 +63,7 @@ namespace AspNetCoreWebApi.Controllers
         [HttpPost]
         public IActionResult Create([FromBody]Fruit fruit)
         {
-            if (Some(fruit).IsNull())
+            if (fruit is null)
                 return BadRequest();
 
             if (!ModelState.IsValid)
@@ -94,7 +92,7 @@ namespace AspNetCoreWebApi.Controllers
         [HttpPut("{id}")]
         public IActionResult Edit(int id, [FromBody]Fruit fruit)
         {
-            if (Some(fruit).IsNull())
+            if (fruit is null)
                 return BadRequest();
 
             if (fruit.Id != id)
@@ -103,8 +101,7 @@ namespace AspNetCoreWebApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var optionalFruit = Some(this.repository.GetById(id));
-            if (optionalFruit.IsNull())
+            if (this.repository.GetById(id) is null)
                 return NotFound();
 
             this.repository.Update(fruit);
@@ -115,8 +112,7 @@ namespace AspNetCoreWebApi.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var optionalFruit = Some(this.repository.GetById(id));
-            if (optionalFruit.IsNull())
+            if (this.repository.GetById(id) is null)
                 return NotFound();
 
             this.repository.Delete(id);

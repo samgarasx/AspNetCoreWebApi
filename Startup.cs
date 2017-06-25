@@ -36,7 +36,7 @@ namespace AspNetCoreWebApi
             services.AddMvc();
 
             services.AddScoped<IFruitRepository, FruitRepository>();
-            services.AddScoped<IFruitDatasource, FruitDatasource>();
+            services.AddScoped<IFruitDataSource, FruitDataSource>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, 

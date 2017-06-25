@@ -5,11 +5,11 @@ using AspNetCoreWebApi.Models;
 
 namespace AspNetCoreWebApi.Data.Datasources
 {
-    public class FruitDatasource : IFruitDatasource
+    public class FruitDataSource : IFruitDataSource
     {
         private readonly FruitStoreContext context;
 
-        public FruitDatasource(FruitStoreContext context)
+        public FruitDataSource(FruitStoreContext context)
         {
             this.context = context;
         }
@@ -21,7 +21,7 @@ namespace AspNetCoreWebApi.Data.Datasources
 
         public Fruit GetById(int id)
         {
-            return this.context.Fruits.Single(f => f.Id == id);
+            return this.context.Fruits.SingleOrDefault(f => f.Id == id);
         }
 
         public Fruit Add(Fruit fruit)
