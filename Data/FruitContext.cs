@@ -3,18 +3,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AspNetCoreWebApi.Data
 {
-    public class FruitStoreContext : DbContext
+    public class FruitContext : DbContext
     {
         public DbSet<Fruit> Fruits { get; set; }
 
-        public FruitStoreContext(DbContextOptions<FruitStoreContext> options)
+        public FruitContext(DbContextOptions<FruitContext> options)
             : base(options)
         { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Fruit>()
-                .ToTable("fruits");
+                .ToTable("fruit");
 
             modelBuilder.Entity<Fruit>()
                 .Property(f => f.Id)

@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using AspNetCoreWebApi.Data.Repositories;
-using AspNetCoreWebApi.Data.Datasources;
+using System.Text;
 
 namespace AspNetCoreWebApi
 {
@@ -21,8 +21,12 @@ namespace AspNetCoreWebApi
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", false, true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true)
                 .AddEnvironmentVariables();
+
+            if (env.IsDevelopment())
+                builder.AddUserSecrets<Startup>();
+
             Configuration = builder.Build();
         }
 
@@ -30,13 +34,20 @@ namespace AspNetCoreWebApi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<FruitStoreContext>(options => 
-                options.UseNpgsql(Configuration["DatabaseConnection"]));    
+            var connectionStringBuilder = new StringBuilder(
+                "Server=SERVER;Database=DATABASE;Username=USERNAME;Password=PASSWORD");
+
+            connectionStringBuilder.Replace("SERVER", Configuration["Database:Server"]);
+            connectionStringBuilder.Replace("DATABASE", Configuration["Database:Name"]);
+            connectionStringBuilder.Replace("USERNAME", Configuration["db.user"]);
+            connectionStringBuilder.Replace("PASSWORD", Configuration["db.password"]);
+            
+            services.AddDbContext<FruitContext>(options => 
+                options.UseNpgsql(connectionStringBuilder.ToString()));    
 
             services.AddMvc();
 
             services.AddScoped<IFruitRepository, FruitRepository>();
-            services.AddScoped<IFruitDataSource, FruitDataSource>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, 

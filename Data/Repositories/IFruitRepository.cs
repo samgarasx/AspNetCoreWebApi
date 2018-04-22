@@ -1,14 +1,14 @@
-using System.Collections.Generic;
 using AspNetCoreWebApi.Models;
+using System.Collections.Generic;
 
 namespace AspNetCoreWebApi.Data.Repositories
 {
     public interface IFruitRepository
     {
-        IEnumerable<Fruit> GetAll();
-        Fruit GetById(int id);
-        Fruit Add(Fruit fruit);
-        void Update(Fruit fruit);
-        void Delete(int id);
+         IEnumerable<Fruit> FindAll();
+         Fruit FindById(int id);
+         Fruit Create(Fruit fruit);
+         void Update(Fruit fruit);
+         void Delete(Fruit fruit);
     }
 }

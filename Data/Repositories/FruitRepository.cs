@@ -1,44 +1,47 @@
 using System;
 using System.Collections.Generic;
-using AspNetCoreWebApi.Data.Datasources;
+using System.Linq;
 using AspNetCoreWebApi.Models;
 
 namespace AspNetCoreWebApi.Data.Repositories
 {
     public class FruitRepository : IFruitRepository
     {
-        private readonly IFruitDataSource dataSource;
+        private readonly FruitContext context;
 
-        public FruitRepository(IFruitDataSource dataSource)
+        public FruitRepository(FruitContext context)
         {
-            this.dataSource = dataSource;
+            this.context = context;
         }
 
-        public IEnumerable<Fruit> GetAll()
+        public IEnumerable<Fruit> FindAll()
         {
-            return this.dataSource.GetAll();
+            return this.context.Fruits.ToList();
         }
 
-        public Fruit GetById(int id)
+        public Fruit FindById(int id)
         {
-            return this.dataSource.GetById(id);
+            return this.context.Fruits.SingleOrDefault(f => f.Id == id);
         }
 
-        public Fruit Add(Fruit fruit)
+        public Fruit Create(Fruit fruit)
         {
-            return this.dataSource.Add(fruit);
+            this.context.Fruits.Add(fruit);
+            this.context.SaveChanges();
+
+            return fruit;
         }
 
         public void Update(Fruit fruit)
         {
-            var oldFruit = this.dataSource.GetById(fruit.Id);
-            this.dataSource.Update(oldFruit, fruit);
+            this.context.Fruits.Update(fruit);
+            this.context.SaveChanges();
         }
 
-        public void Delete(int id)
+        public void Delete(Fruit fruit)
         {
-            var fruit = this.dataSource.GetById(id);
-            this.dataSource.Delete(fruit);
+            this.context.Fruits.Remove(fruit);
+            this.context.SaveChanges();
         }
     }
 }

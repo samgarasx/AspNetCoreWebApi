@@ -22,7 +22,7 @@ namespace AspNetCoreWebApi.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var fruits = this.repository.GetAll();
+            var fruits = this.repository.FindAll();
 
             var jsonResponse = new JObject(
                 new JProperty("ok", true),
@@ -42,9 +42,7 @@ namespace AspNetCoreWebApi.Controllers
         [HttpGet("{id}", Name = "GetFruit")]
         public IActionResult GetById(int id)
         {
-            var fruits = this.repository.GetAll();
-
-            var fruit = fruits.SingleOrDefault(m => m.Id == id);
+            var fruit = this.repository.FindById(id);
             if (fruit is null)
                 return NotFound();
 
@@ -61,7 +59,7 @@ namespace AspNetCoreWebApi.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody]Fruit fruit)
+        public IActionResult Add([FromBody]Fruit fruit)
         {
             if (fruit is null)
                 return BadRequest();
@@ -69,29 +67,31 @@ namespace AspNetCoreWebApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var newFruit = this.repository.Add(fruit);
+            var createdFruit = this.repository.Create(fruit);
 
             var jsonResponse = new JObject(
                 new JProperty("ok", true),
                 new JProperty("msg", new JObject(
-                    new JProperty("id", newFruit.Id),
-                    new JProperty("no", newFruit.No),
-                    new JProperty("description", newFruit.Description)
+                    new JProperty("id", createdFruit.Id),
+                    new JProperty("no", createdFruit.No),
+                    new JProperty("description", createdFruit.Description)
                 ))
             );       
 
             return CreatedAtRoute("GetFruit", 
                 new 
                 { 
-                    id = newFruit.Id, 
-                    name = newFruit.No, 
-                    newFruit.Description 
+                    id = createdFruit.Id, 
+                    name = createdFruit.No, 
+                    description = createdFruit.Description 
                 }, jsonResponse);    
         }
 
         [HttpPut("{id}")]
         public IActionResult Edit(int id, [FromBody]Fruit fruit)
         {
+            var jsonResponse = new JObject();
+
             if (fruit is null)
                 return BadRequest();
 
@@ -101,23 +101,62 @@ namespace AspNetCoreWebApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            if (this.repository.GetById(id) is null)
-                return NotFound();
+            var oldFruit = this.repository.FindById(id);
+            if (oldFruit is null)
+            {
+                jsonResponse = new JObject(
+                    new JProperty("ok", false),
+                    new JProperty("msg", "Fruit does not exists")
+                );
 
-            this.repository.Update(fruit);
+                return Ok(jsonResponse);
+            }
 
-            return NoContent();
+            oldFruit.No = fruit.No;
+            oldFruit.Description = fruit.Description;
+
+            this.repository.Update(oldFruit);
+
+            jsonResponse = new JObject(
+                new JProperty("ok", true),
+                new JProperty("msg", new JObject(
+                    new JProperty("id", fruit.Id),
+                    new JProperty("no", fruit.No),
+                    new JProperty("description", fruit.Description)
+                ))
+            );
+
+            return Ok(jsonResponse);
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            if (this.repository.GetById(id) is null)
-                return NotFound();
+            var jsonResponse = new JObject();
 
-            this.repository.Delete(id);
+            var fruit = this.repository.FindById(id);
+            if (fruit is null)
+            {
+                jsonResponse = new JObject(
+                    new JProperty("ok", false),
+                    new JProperty("msg", "Fruit does not exists")
+                );
 
-            return NoContent();
+                return Ok(jsonResponse);
+            }
+
+            this.repository.Delete(fruit);
+
+            jsonResponse = new JObject(
+                new JProperty("ok", true),
+                new JProperty("msg", new JObject(
+                    new JProperty("id", fruit.Id),
+                    new JProperty("no", fruit.No),
+                    new JProperty("description", fruit.Description)
+                ))
+            );
+
+            return Ok(jsonResponse);
         }
     }
 }
