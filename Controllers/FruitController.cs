@@ -1,30 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AspNetCoreWebApi.Data.Repositories;
-using Microsoft.AspNetCore.Mvc;
-using AspNetCoreWebApi.Models;
-using Newtonsoft.Json.Linq;
+﻿using AspNetCoreWebApi.Entities;
 using AspNetCoreWebApi.Helpers;
-using Newtonsoft.Json;
+using AspNetCoreWebApi.Models;
+using System.Linq;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 
 namespace AspNetCoreWebApi.Controllers
 {
     [Route("api/fruits")]
     public class FruitController : Controller
     {
-        private readonly IFruitRepository repository;
+        private readonly FruitContext _context;
 
-        public FruitController(IFruitRepository repository)
+        public FruitController(FruitContext context)
         {
-            this.repository = repository;
+            _context = context;
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult All()
         {
-            var fruits = this.repository.FindAll().ToList();
+            var fruits = _context.Fruits.Select(fruitEntity => new Fruit
+            {
+                Id = fruitEntity.Id,
+                No = fruitEntity.No,
+                Description = fruitEntity.Description
+            }).ToList();
 
             var jsonResponse = JsonResponse<List<Fruit>>.Success(fruits);
 
@@ -32,84 +33,123 @@ namespace AspNetCoreWebApi.Controllers
         }  
 
         [HttpGet("{id}", Name = "GetFruit")]
-        public IActionResult GetById(int id)
+        public IActionResult One(long id)
         {
-            var jsonResponse = new JsonResponse<Fruit>();
+            JsonResponse<Fruit> jsonResponse;
 
-            var fruit = this.repository.FindById(id);
-            if (fruit is null)
+            var fruitEntity = _context.Fruits.Find(id);
+            
+            if (fruitEntity is null)
             {
                 jsonResponse = JsonResponse<Fruit>.Failure("Fruit does not exists");
-
-                return Ok(jsonResponse);
             }
-
-            jsonResponse = JsonResponse<Fruit>.Success(fruit);
-            
+            else
+            {
+                var fruit = new Fruit
+                {
+                    Id = fruitEntity.Id,
+                    No = fruitEntity.No,
+                    Description = fruitEntity.Description
+                };
+                
+                jsonResponse = JsonResponse<Fruit>.Success(fruit);
+            }
+  
             return Ok(jsonResponse);
         }
 
         [HttpPost]
-        public IActionResult Add([FromBody]Fruit fruit)
+        public IActionResult New([FromBody]Fruit fruit)
         {
+            JsonResponse<Fruit> jsonResponse;
+            
             if (!ModelState.IsValid)
+            {
                 return BadRequest();
+            }
+            
+            var fruitEntity = _context.Fruits.SingleOrDefault(f => f.No == fruit.No);
+            
+            if (fruitEntity is null)
+            {
+                fruitEntity = new FruitEntity()
+                {
+                    No = fruit.No,
+                    Description = fruit.Description
+                };
+                
+                 _context.Fruits.Add(fruitEntity);
+                _context.SaveChanges();
 
-            var createdFruit = this.repository.Create(fruit);
+                fruit.Id = fruitEntity.Id;
 
-            var jsonResponse = JsonResponse<Fruit>.Success(createdFruit);     
+                jsonResponse = JsonResponse<Fruit>.Success(fruit);
+            }
+            else
+            {
+                jsonResponse = JsonResponse<Fruit>.Failure("Fruit already exists");
+            }
 
-            return CreatedAtRoute("GetFruit", 
-                new 
-                { 
-                    id = createdFruit.Id, 
-                    name = createdFruit.No, 
-                    description = createdFruit.Description 
-                }, jsonResponse);    
+            return Ok(jsonResponse);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Edit(int id, [FromBody]Fruit fruit)
+        public IActionResult Edit(long id, [FromBody]Fruit fruit)
         {
-            var jsonResponse = new JsonResponse<Fruit>();
+            JsonResponse<Fruit> jsonResponse;
 
             if (!ModelState.IsValid)
+            {
                 return BadRequest();
-
-            var oldFruit = this.repository.FindById(id);
-            if (oldFruit is null)
+            }
+            
+            var fruitEntity = _context.Fruits.Find(id);
+            
+            if (fruitEntity is null)
             {
                 jsonResponse = JsonResponse<Fruit>.Failure("Fruit does not exists");
-
-                return Ok(jsonResponse);
             }
+            else
+            {
+                fruitEntity.No = fruit.No;
+                fruitEntity.Description = fruit.Description;
+                
+                _context.Fruits.Update(fruitEntity);
+                _context.SaveChanges();
 
-            oldFruit.No = fruit.No;
-            oldFruit.Description = fruit.Description;
-
-            this.repository.Update(oldFruit);
-
-            jsonResponse = JsonResponse<Fruit>.Success(fruit);
+                fruit.Id = id;
+                
+                jsonResponse = JsonResponse<Fruit>.Success(fruit);
+            }
 
             return Ok(jsonResponse);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public IActionResult Delete(long id)
         {
-            var jsonResponse = new JsonResponse<Fruit>();
+            JsonResponse<Fruit> jsonResponse;
 
-            var fruit = this.repository.FindById(id);
-            if (fruit is null)
+            var fruitEntity = _context.Fruits.Find(id);
+            
+            if (fruitEntity is null)
             {
                 jsonResponse = JsonResponse<Fruit>.Failure("Fruit does not exists");
-
-                return Ok(jsonResponse);
             }
-
-            this.repository.Delete(fruit);
-
-            jsonResponse = JsonResponse<Fruit>.Success(fruit);
+            else
+            {
+                var fruit = new Fruit
+                {
+                    Id = fruitEntity.Id,
+                    No = fruitEntity.No,
+                    Description = fruitEntity.Description
+                };
+                
+                _context.Fruits.Remove(fruitEntity);
+                _context.SaveChanges();
+                
+                jsonResponse = JsonResponse<Fruit>.Success(fruit);
+            }
 
             return Ok(jsonResponse);
         }

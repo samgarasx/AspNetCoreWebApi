@@ -1,34 +1,33 @@
-using AspNetCoreWebApi.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace AspNetCoreWebApi.Data
+namespace AspNetCoreWebApi.Entities
 {
     public class FruitContext : DbContext
     {
-        public DbSet<Fruit> Fruits { get; set; }
+        public DbSet<FruitEntity> Fruits { get; set; }
 
         public FruitContext(DbContextOptions<FruitContext> options)
             : base(options)
-        { }
+        {}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Fruit>()
+            modelBuilder.Entity<FruitEntity>()
                 .ToTable("fruit");
 
-            modelBuilder.Entity<Fruit>()
+            modelBuilder.Entity<FruitEntity>()
                 .Property(f => f.Id)
                 .HasColumnName("id");
 
-            modelBuilder.Entity<Fruit>()
+            modelBuilder.Entity<FruitEntity>()
                 .Property(f => f.No)
                 .HasColumnName("no");
 
-            modelBuilder.Entity<Fruit>()
+            modelBuilder.Entity<FruitEntity>()
                 .Property(f => f.Description)
                 .HasColumnName("description");
 
-            modelBuilder.Entity<Fruit>()
+            modelBuilder.Entity<FruitEntity>()
                 .HasIndex(f => f.No)
                 .IsUnique();
         }
