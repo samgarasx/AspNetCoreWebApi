@@ -33,7 +33,7 @@ namespace AspNetCoreWebApi.Controllers
         }  
 
         [HttpGet("{id}", Name = "GetFruit")]
-        public IActionResult One(long id)
+        public IActionResult One(int id)
         {
             JsonResponse<Fruit> jsonResponse;
 
@@ -94,7 +94,7 @@ namespace AspNetCoreWebApi.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult Edit(long id, [FromBody]Fruit fruit)
+        public IActionResult Edit(int id, [FromBody]Fruit fruit)
         {
             JsonResponse<Fruit> jsonResponse;
 
@@ -111,13 +111,13 @@ namespace AspNetCoreWebApi.Controllers
             }
             else
             {
-                fruitEntity.No = fruit.No;
                 fruitEntity.Description = fruit.Description;
                 
                 _context.Fruits.Update(fruitEntity);
                 _context.SaveChanges();
 
-                fruit.Id = id;
+                fruit.Id = fruitEntity.Id;
+                fruit.No = fruitEntity.No;
                 
                 jsonResponse = JsonResponse<Fruit>.Success(fruit);
             }
@@ -126,7 +126,7 @@ namespace AspNetCoreWebApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(long id)
+        public IActionResult Delete(int id)
         {
             JsonResponse<Fruit> jsonResponse;
 

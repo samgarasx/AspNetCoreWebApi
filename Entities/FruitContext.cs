@@ -21,6 +21,7 @@ namespace AspNetCoreWebApi.Entities
 
             modelBuilder.Entity<FruitEntity>()
                 .Property(f => f.No)
+                .IsRequired()
                 .HasColumnName("no");
 
             modelBuilder.Entity<FruitEntity>()

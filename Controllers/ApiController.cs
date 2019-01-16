@@ -7,7 +7,7 @@ namespace AspNetCoreWebApi.Controllers
     {
         public string Api()
         {
-            return "Welcome to ASP.NET Core Web API";
+            return "Welcome to ASP.NET Core Web API!";
         }
     }
 }

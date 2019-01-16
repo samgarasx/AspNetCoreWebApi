@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace AspNetCoreWebApi.Migrations
+namespace AspNetCoreWebApi.Database.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class CreateFruit : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,9 +11,9 @@ namespace AspNetCoreWebApi.Migrations
                 columns: table => new
                 {
                     id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    description = table.Column<string>(maxLength: 50, nullable: true),
-                    no = table.Column<string>(maxLength: 20, nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    no = table.Column<string>(nullable: false),
+                    description = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

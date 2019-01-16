@@ -2,40 +2,33 @@
 using AspNetCoreWebApi.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-using System;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace AspNetCoreWebApi.Migrations
+namespace AspNetCoreWebApi.Database.Migrations
 {
     [DbContext(typeof(FruitContext))]
-    [Migration("20180422173441_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20190116160711_CreateFruit")]
+    partial class CreateFruit
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
-                .HasAnnotation("ProductVersion", "2.0.2-rtm-10011");
+                .HasAnnotation("ProductVersion", "2.2.1-servicing-10028");
 
-            modelBuilder.Entity("AspNetCoreWebApi.Models.Fruit", b =>
+            modelBuilder.Entity("AspNetCoreWebApi.Entities.FruitEntity", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id");
 
                     b.Property<string>("Description")
-                        .HasColumnName("description")
-                        .HasMaxLength(50);
+                        .HasColumnName("description");
 
                     b.Property<string>("No")
                         .IsRequired()
-                        .HasColumnName("no")
-                        .HasMaxLength(20);
+                        .HasColumnName("no");
 
                     b.HasKey("Id");
 

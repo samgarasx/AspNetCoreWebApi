@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using System.Text;
 
 namespace AspNetCoreWebApi
 {
@@ -17,8 +15,7 @@ namespace AspNetCoreWebApi
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
-                .AddJsonFile("appsettings.json", false, true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", true, true)
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", false, true)
                 .AddEnvironmentVariables();
 
             if (env.IsDevelopment())
@@ -39,27 +36,15 @@ namespace AspNetCoreWebApi
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-            
-            var connectionStringBuilder = new StringBuilder(
-                "Server=SERVER;Database=DATABASE;Username=USERNAME;Password=PASSWORD");
 
-            connectionStringBuilder.Replace("SERVER", Configuration["Database:Server"]);
-            connectionStringBuilder.Replace("DATABASE", Configuration["Database:Name"]);
-            connectionStringBuilder.Replace("USERNAME", Configuration["Database:User"]);
-            connectionStringBuilder.Replace("PASSWORD", Configuration["Database:Password"]);
-            
             services.AddDbContext<FruitContext>(options => 
-                options.UseNpgsql(connectionStringBuilder.ToString()));
+                options.UseSqlite(Configuration["Database:Url"]));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, 
-            ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app)
         {
-            loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
-            
             app.UseCookiePolicy();
 
             app.UseMvc();
